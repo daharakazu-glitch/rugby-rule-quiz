@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ラグビー競技規則確認クイズ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* アニメーションの定義 */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <div id="app"></div>
+
+    <script>
+        // 計30問の競技規則クイズデータ
+        const allQuestions = [
+            {
+                questionText: '相手のインゴールにボールをグラウンディングして得られる「トライ」の得点は何点？',
+                answerOptions: [
+                    { answerText: '3点', isCorrect: false },
+                    { answerText: '5点', isCorrect: true },
+                    { answerText: '7点', isCorrect: false },
+                    { answerText: '2点', isCorrect: false },
+                ],
+                explanation: 'トライは5点です。トライ成功後、追加でコンバージョンキック（2点）を狙う権利が与えられます。'
+            },
+            {
+                questionText: 'コンバージョンキック、またはペナルティゴールの得点はそれぞれ何点？',
+                answerOptions: [
+                    { answerText: 'コンバージョン2点、ペナルティゴール3点', isCorrect: true },
+                    { answerText: 'コンバージョン3点、ペナルティゴール2点', isCorrect: false },
+                    { answerText: 'どちらも2点', isCorrect: false },
+                    { answerText: 'どちらも3点', isCorrect: false },
+                ],
+                explanation: 'コンバージョンキックは2点、ペナルティゴールおよびドロップゴールは3点です。'
+            },
+            {
+                questionText: 'スクラムを組む際の、レフリーの正しいコール（掛け声）の順番は？',
+                answerOptions: [
+                    { answerText: 'クラウチ → タッチ → エンゲージ', isCorrect: false },
+                    { answerText: 'クラウチ → バインド → セット', isCorrect: true },
+                    { answerText: 'バインド → クラウチ → セット', isCorrect: false },
+                    { answerText: 'セット → バインド → クラウチ', isCorrect: false },
+                ],
+                explanation: '現在のスクラムのエンゲージ手順は「クラウチ（Crouch）」「バインド（Bind）」「セット（Set）」です。'
+            },
+            {
+                questionText: 'タックルが成立した際、タックラー（タックルをした選手）が直ちに行わなければならないことは？',
+                answerOptions: [
+                    { answerText: 'ボールを奪い取る', isCorrect: false },
+                    { answerText: '立ち上がってラックに参加する', isCorrect: false },
+                    { answerText: 'タックルされたプレーヤーとボールから離れる', isCorrect: true },
+                    { answerText: '味方が来るまで相手を押さえつける', isCorrect: false },
+                ],
+                explanation: 'タックラーは直ちにタックルされたプレーヤーから離れ（リリース）、立ち上がるかその場から退かなければなりません。'
+            },
+            {
+                questionText: 'ラックにおいて、反則となる行為はどれ？',
+                answerOptions: [
+                    { answerText: '足でボールを後ろに掻き出す', isCorrect: false },
+                    { answerText: '手を使ってボールを扱う（ハンドリング）', isCorrect: true },
+                    { answerText: '最後尾の足より後ろから参加する', isCorrect: false },
+                    { answerText: '相手を押し込む', isCorrect: false },
+                ],
+                explanation: 'ラックの中にあるボールは、手で扱ってはいけません（ハンドリングの反則）。足を使ってコントロールする必要があります。'
+            },
+            {
+                questionText: '「モール」が成立する条件として正しいものは？',
+                answerOptions: [
+                    { answerText: 'ボールキャリアと、両チーム少なくとも1名ずつの計3名が立ったまま組み合う', isCorrect: true },
+                    { answerText: 'ボールが地面にあり、両チーム1名ずつが組み合う', isCorrect: false },
+                    { answerText: 'ボールキャリアに相手選手が2名以上でタックルする', isCorrect: false },
+                    { answerText: 'ボールキャリアが倒れ、その上に両チームの選手が重なる', isCorrect: false },
+                ],
+                explanation: 'モールは、ボールキャリアと味方1名、相手1名の「計3名」が立ったままバインドした時点で成立します。地面にある場合はラックです。'
+            },
+            {
+                questionText: '自陣22メートルラインの内側で、相手が蹴ったボールを直接ノーバウンドでキャッチし、「マーク」とコールした。どうなる？',
+                answerOptions: [
+                    { answerText: 'その地点から自ボールのスクラムになる', isCorrect: false },
+                    { answerText: 'その地点から自チームのフリーキックで再開する', isCorrect: true },
+                    { answerText: 'そのままプレー継続（アドバンテージ）', isCorrect: false },
+                    { answerText: '相手のペナルティキックになる', isCorrect: false },
+                ],
+                explanation: 'クリーンキャッチして「マーク」をコールすると、その地点からのフリーキックが与えられます。プレッシャーを回避するための重要なルールです。'
+            },
+            {
+                questionText: 'イエローカードを提示されたプレーヤーは、何分間の一時的退出（シンビン）となる？',
+                answerOptions: [
+                    { answerText: '5分間', isCorrect: false },
+                    { answerText: '10分間', isCorrect: true },
+                    { answerText: '15分間', isCorrect: false },
+                    { answerText: '試合終了まで', isCorrect: false },
+                ],
+                explanation: 'イエローカードは10分間のシンビン（一時的退出）です。レッドカードの場合は試合終了まで退場となります。'
+            },
+            {
+                questionText: '「50:22（フィフティ・トゥエンティツー）」ルールの説明として正しいのは？',
+                answerOptions: [
+                    { answerText: '自陣から蹴ったボールが、バウンドして敵陣22mライン内でタッチに出た場合、マイボールのラインアウトになる', isCorrect: true },
+                    { answerText: '自陣から蹴ったボールが、ダイレクトで敵陣22mライン内でタッチに出た場合、マイボールのラインアウトになる', isCorrect: false },
+                    { answerText: '敵陣22m内で50回フェーズを重ねるとペナルティがもらえる', isCorrect: false },
+                    { answerText: '50m以上のキックを成功させると、得点が倍になる', isCorrect: false },
+                ],
+                explanation: '自陣内から蹴ったボールが「バウンドしてから」敵陣22mラインより奥でタッチに出た場合、蹴った側のラインアウトで再開されます（陣地回復と攻撃権獲得のチャンス）。'
+            },
+            {
+                questionText: 'オープンプレー中、ボールを前に蹴った選手より「前」にいた味方選手は、どのような状態になる？',
+                answerOptions: [
+                    { answerText: 'オンサイド', isCorrect: false },
+                    { answerText: 'オフサイド', isCorrect: true },
+                    { answerText: 'アドバンテージ', isCorrect: false },
+                    { answerText: 'インゴール', isCorrect: false },
+                ],
+                explanation: 'キックした選手より前にいる味方は「オフサイド」の位置にいます。キッカー自身、またはキッカーより後ろにいた選手に追い越されるまでプレーに関与できません。'
+            },
+            {
+                questionText: 'ハイタックル（危険なタックル）の基準となるラインはどこより上？',
+                answerOptions: [
+                    { answerText: '腰のライン', isCorrect: false },
+                    { answerText: '胸のライン', isCorrect: false },
+                    { answerText: '肩のライン', isCorrect: true },
+                    { answerText: '頭のライン', isCorrect: false },
+                ],
+                explanation: '肩のラインより上へのタックルは「ハイタックル」となり、ペナルティ（状況によってはカード）の対象となります。首や頭を守るための厳格なルールです。'
+            },
+            {
+                questionText: '攻撃側の選手が相手のインゴールに蹴り込んだボールを、防御側の選手が押さえてグラウンディング（インゴール・タッチダウン）した。再開方法は？',
+                answerOptions: [
+                    { answerText: '自陣22メートルラインからのドロップアウト', isCorrect: false },
+                    { answerText: '自陣ゴールラインからのドロップアウト', isCorrect: true },
+                    { answerText: '自陣5メートルでの相手ボールスクラム', isCorrect: false },
+                    { answerText: '自陣22メートルラインでの相手ボールラインアウト', isCorrect: false },
+                ],
+                explanation: '現在は「ゴールラインドロップアウト」で再開されます。攻撃側がインゴールに持ち込んでグラウンディングできなかった（ヘルドアップ）場合も同様です。'
+            },
+            {
+                questionText: 'ボールキャリアがタックルされて倒れ、ラックが形成された。味方や相手がラックに参加する際、どこを通らなければならない？',
+                answerOptions: [
+                    { answerText: '真横から', isCorrect: false },
+                    { answerText: '最後尾の選手の足より後ろ（自陣側）から', isCorrect: true },
+                    { answerText: 'ボールがある場所ならどこからでも', isCorrect: false },
+                    { answerText: '相手を押しのけられる場所から', isCorrect: false },
+                ],
+                explanation: 'ラック（およびモール、タックル）に参加する選手は、自陣側の最後尾の足を通るオフサイドラインより後ろ（いわゆる「ゲート」）からまっすぐ参加しなければなりません。横から入るとペナルティになります。'
+            },
+            {
+                questionText: 'レフリーが「アドバンテージ」をコールし、腕を水平に伸ばしている。これはどういう状況？',
+                answerOptions: [
+                    { answerText: 'プレーを即座に止めなければならない', isCorrect: false },
+                    { answerText: '反則があったが、反則された側が有利にプレーを進めているためそのまま続行している', isCorrect: true },
+                    { answerText: '試合時間が終了した', isCorrect: false },
+                    { answerText: '得点が認められた', isCorrect: false },
+                ],
+                explanation: '反則が起きても、反則を受けたチームが地域的・戦術的に有利（アドバンテージ）な状況にある場合、レフリーはプレーを止めずに続行させます。有利にならなかった場合は反則の地点に戻って再開します。'
+            },
+            {
+                questionText: 'ラインアウトでボールを投げ入れる際、最も注意しなければならない反則は？',
+                answerOptions: [
+                    { answerText: 'ノット・ストレート（まっすぐ投げないこと）', isCorrect: true },
+                    { answerText: 'スローフォワード', isCorrect: false },
+                    { answerText: 'オーバー・ザ・トップ', isCorrect: false },
+                    { answerText: 'アーリー・エンゲージ', isCorrect: false },
+                ],
+                explanation: 'ラインアウトでは、両チームの間にまっすぐボールを投げ入れなければなりません。曲がった場合は「ノット・ストレート」となり、相手ボールのスクラムかラインアウトが選択されます。'
+            },
+            {
+                questionText: 'ペナルティキックを得たチームが選択できない再開方法はどれ？',
+                answerOptions: [
+                    { answerText: 'ペナルティゴールを狙う', isCorrect: false },
+                    { answerText: 'タッチに蹴り出し、マイボールのラインアウトにする', isCorrect: false },
+                    { answerText: 'タップキックで速攻を仕掛ける', isCorrect: false },
+                    { answerText: '相手の選手を1人退場させる', isCorrect: true },
+                ],
+                explanation: 'ペナルティキックを得た場合、ゴールを狙う、タッチに蹴る、スクラムを選択する、タップキックで再開するなどの選択肢がありますが、相手を退場させる権利はありません。'
+            },
+            {
+                questionText: 'ジャッカル（タックルされた相手からボールを奪うプレー）を成功させるための必須条件は？',
+                answerOptions: [
+                    { answerText: '自分の両膝を地面につけてボールに絡む', isCorrect: false },
+                    { answerText: '自立して（自分の足で体重を支えて）ボールに絡む', isCorrect: true },
+                    { answerText: '相手の首を掴んで引き剥がす', isCorrect: false },
+                    { answerText: '横から飛び込んでボールを奪う', isCorrect: false },
+                ],
+                explanation: 'ジャッカルを行うプレーヤーは、必ず「自立している（足で体重を支えている）」状態でボールをプレーしなければなりません。倒れ込みながらボールに絡むと反則になります。'
+            },
+            {
+                questionText: '試合時間は通常、前後半それぞれ何分？',
+                answerOptions: [
+                    { answerText: '30分', isCorrect: false },
+                    { answerText: '40分', isCorrect: true },
+                    { answerText: '45分', isCorrect: false },
+                    { answerText: '50分', isCorrect: false },
+                ],
+                explanation: '15人制ラグビーの試合時間は前後半40分ずつの計80分です。ハーフタイムは最長15分です。'
+            },
+            {
+                questionText: 'ボールキャリアがタッチラインを踏みながらボールを持っている場合、判定はどうなる？',
+                answerOptions: [
+                    { answerText: 'プレー続行', isCorrect: false },
+                    { answerText: 'タッチ（ボールデッド）', isCorrect: true },
+                    { answerText: 'ノックオン', isCorrect: false },
+                    { answerText: 'ペナルティ', isCorrect: false },
+                ],
+                explanation: 'ボールキャリアがタッチライン（線そのもの）を踏んだ時点で、ボールは外に出た（タッチ）とみなされます。ラインを踏むことはアウトです。'
+            },
+            {
+                questionText: '故意にボールを前に叩き落とす行為（インテンショナル・ノックオン）の罰則は通常どうなる？',
+                answerOptions: [
+                    { answerText: '相手ボールのスクラム', isCorrect: false },
+                    { answerText: 'ペナルティキック（状況によりイエローカード等の対象）', isCorrect: true },
+                    { answerText: 'フリーキック', isCorrect: false },
+                    { answerText: 'プレー続行', isCorrect: false },
+                ],
+                explanation: '単なる落球（ノックオン）はスクラムですが、「故意に」相手のパスをはたき落とす行為は重い反則（ペナルティ）となり、決定的なチャンスを防いだ場合はシンビンやペナルティトライの対象にもなります。'
+            },
+            {
+                questionText: '相手のキック直後に、ボールをブロックしようと手を伸ばしてボールに当てて前に落とした（チャージダウン）。これはノックオンになる？',
+                answerOptions: [
+                    { answerText: 'ノックオンになる', isCorrect: false },
+                    { answerText: 'ノックオンにならない', isCorrect: true },
+                    { answerText: 'ペナルティになる', isCorrect: false },
+                    { answerText: 'フリーキックになる', isCorrect: false },
+                ],
+                explanation: '相手のキックに対する「チャージダウン」は、ボールが前に落ちてもノックオンにはなりません。そのままプレー続行となります。'
+            },
+            {
+                questionText: '空中にジャンプしてボールを捕ろうとしているプレーヤーに対してタックルをするとどうなる？',
+                answerOptions: [
+                    { answerText: '通常のタックルとしてプレー続行', isCorrect: false },
+                    { answerText: '危険なプレーとしてペナルティ（カードの対象）', isCorrect: true },
+                    { answerText: 'スクラムになる', isCorrect: false },
+                    { answerText: 'フリーキックになる', isCorrect: false },
+                ],
+                explanation: '空中にいるプレーヤーへのタックルや妨害は非常に危険なプレーとみなされ、重いペナルティ（多くの場合イエローまたはレッドカード）が科されます。'
+            },
+            {
+                questionText: 'スクラムにボールを投入する際、スクラムハーフはどのようにボールを入れなければならない？',
+                answerOptions: [
+                    { answerText: '味方側のフッカーの足元に向けて斜めに入れる', isCorrect: false },
+                    { answerText: 'まっすぐ（ストレートに）入れる', isCorrect: true },
+                    { answerText: 'バウンドさせて入れる', isCorrect: false },
+                    { answerText: 'レフリーの合図と同時に高く放り投げる', isCorrect: false },
+                ],
+                explanation: 'スクラムへのボール投入は、両チームのプロップの中央の線に沿って「まっすぐ」入れなければなりません（ノット・ストレートの反則を避けるため）。'
+            },
+            {
+                questionText: 'フリーキックを与えられた直後に、そのままドロップゴールを狙ってキックし、ゴールに入った。得点は認められる？',
+                answerOptions: [
+                    { answerText: '3点認められる', isCorrect: false },
+                    { answerText: '2点認められる', isCorrect: false },
+                    { answerText: '得点は認められない', isCorrect: true },
+                    { answerText: '相手ボールのスクラムになる', isCorrect: false },
+                ],
+                explanation: 'フリーキックからのプレー、またはフリーキックから直接蹴られたドロップゴールは得点として認められません（ペナルティキックからのドロップゴールも同様です）。'
+            },
+            {
+                questionText: 'オープンプレー中、パスされたボールが前方に飛んでしまった（スローフォワード）。ゲームの再開方法は？',
+                answerOptions: [
+                    { answerText: '相手ボールのスクラム', isCorrect: true },
+                    { answerText: '相手のペナルティキック', isCorrect: false },
+                    { answerText: '相手のフリーキック', isCorrect: false },
+                    { answerText: 'マイボールのラインアウト', isCorrect: false },
+                ],
+                explanation: 'スローフォワード（および通常のノックオン）は軽い反則とみなされ、反則が起きた地点での相手ボールスクラムで再開されます。'
+            },
+            {
+                questionText: 'プレー中にレフリーにボールが当たってしまった。どちらのチームにも有利にならなかった場合、判定はどうなる？',
+                answerOptions: [
+                    { answerText: 'そのままプレー続行', isCorrect: true },
+                    { answerText: 'レフリーに当てたチームの反則', isCorrect: false },
+                    { answerText: '直前のプレーからやり直し', isCorrect: false },
+                    { answerText: '必ずスクラムになる', isCorrect: false },
+                ],
+                explanation: 'レフリーにボールやボールキャリアが接触しても、どちらのチームも利益を得なかった場合はそのままプレーが続行されます。利益を得た場合はスクラムになります。'
+            },
+            {
+                questionText: 'ペナルティを得て、そのペナルティキックを直接タッチラインの外（タッチ）へ蹴り出した。その後のラインアウトはどちらのボール？',
+                answerOptions: [
+                    { answerText: '相手チームのボール', isCorrect: false },
+                    { answerText: '蹴り出したチーム（マイボール）', isCorrect: true },
+                    { answerText: 'レフリーのコイントスで決める', isCorrect: false },
+                    { answerText: 'ラインアウトではなくスクラムになる', isCorrect: false },
+                ],
+                explanation: 'ペナルティキックからのタッチキックは例外的に「蹴り出したチームのボール」でラインアウトが再開されます。陣地を大きく進める強力なオプションです。'
+            },
+            {
+                questionText: '1つの試合中に、同じプレーヤーが2回目のイエローカード（シンビン）を受けた場合、どうなる？',
+                answerOptions: [
+                    { answerText: '再び10分間の退場', isCorrect: false },
+                    { answerText: '15分間の退場', isCorrect: false },
+                    { answerText: 'レッドカードが提示され、試合から永久退場となる', isCorrect: true },
+                    { answerText: '相手チームにペナルティトライが与えられる', isCorrect: false },
+                ],
+                explanation: '同じ試合で2枚目のイエローカードを受けると、自動的にレッドカードとなり、その試合にはもう戻ることができません。'
+            },
+            {
+                questionText: '公式戦（15人制）において、ベンチに入れる交代選手（リザーブ）は最大何人？',
+                answerOptions: [
+                    { answerText: '5人', isCorrect: false },
+                    { answerText: '7人', isCorrect: false },
+                    { answerText: '8人', isCorrect: true },
+                    { answerText: '10人', isCorrect: false },
+                ],
+                explanation: '15人制ラグビーの公式戦では、通常、最大8人のリザーブ選手をベンチに入れることができます（合計23人の登録）。'
+            },
+            {
+                questionText: 'ラインアウトにおいて、スローワー（ボールを投げる人）がボールを手から離す前に、ラインに参加している選手がジャンプしてしまった。どうなる？',
+                answerOptions: [
+                    { answerText: 'アーリージャンプの反則（フリーキック）', isCorrect: true },
+                    { answerText: 'ノット・ストレートの反則', isCorrect: false },
+                    { answerText: 'そのままプレー続行', isCorrect: false },
+                    { answerText: '相手ボールのラインアウトになる', isCorrect: false },
+                ],
+                explanation: 'ボールが投げ入れられる前にジャンプしたり、味方をリフトしたりする行為は「アーリージャンプ」という反則になり、相手にフリーキックが与えられます。'
+            }
+        ];
+
+        // 状態管理
+        let state = {
+            screen: 'start', // 'start', 'quiz', 'result'
+            questions: [],
+            currentQuestion: 0,
+            score: 0,
+            isAnswered: false,
+            selectedAnswerIndex: null,
+            isPassed: false
+        };
+
+        // 配列シャッフル関数
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // アクション関数
+        window.startQuiz = function(questionCount) {
+            let selectedQuestions = shuffleArray(allQuestions);
+            if (questionCount !== 'all') {
+                selectedQuestions = selectedQuestions.slice(0, questionCount);
+            }
+            state.questions = selectedQuestions;
+            state.screen = 'quiz';
+            state.currentQuestion = 0;
+            state.score = 0;
+            state.isAnswered = false;
+            state.selectedAnswerIndex = null;
+            state.isPassed = false;
+            render();
+        };
+
+        window.handleAnswerOptionClick = function(isCorrect, index) {
+            if (state.isAnswered) return;
+            state.selectedAnswerIndex = index;
+            state.isAnswered = true;
+            state.isPassed = false;
+            if (isCorrect) {
+                state.score++;
+            }
+            render();
+        };
+
+        window.handlePass = function() {
+            if (state.isAnswered) return;
+            state.isAnswered = true;
+            state.isPassed = true;
+            state.selectedAnswerIndex = null;
+            render();
+        };
+
+        window.handleNextQuestion = function() {
+            const nextQ = state.currentQuestion + 1;
+            if (nextQ < state.questions.length) {
+                state.currentQuestion = nextQ;
+                state.isAnswered = false;
+                state.selectedAnswerIndex = null;
+                state.isPassed = false;
+                render();
+            } else {
+                state.screen = 'result';
+                render();
+            }
+        };
+
+        window.backToHome = function() {
+            state.screen = 'start';
+            state.questions = [];
+            render();
+        };
+
+        // スコアメッセージ
+        function getScoreMessage() {
+            const percentage = (state.score / state.questions.length) * 100;
+            if (percentage === 100) return "パーフェクト！競技規則の理解は完璧です。チームの模範になりましょう！";
+            if (percentage >= 80) return "素晴らしい！ルールをしっかり理解できています。実戦での判断力も高まりそうです。";
+            if (percentage >= 50) return "良いペースです！間違えたりパスした箇所はしっかり復習して、反則を減らしましょう。";
+            return "ルールの基礎固めが必要です。安全にプレーするためにも、解説を読んで規則を確認しましょう！";
+        }
+
+        // 描画関数
+        function render() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            if (state.screen === 'start') {
+                html = `
+                    <div class="min-h-screen bg-green-50 flex items-center justify-center p-4 font-sans w-full">
+                        <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full overflow-hidden border border-green-100 p-8 text-center">
+                            <i data-lucide="book-open" class="w-20 h-20 mx-auto text-green-600 mb-6"></i>
+                            <h1 class="text-3xl font-black text-gray-800 mb-4 tracking-tight">
+                                ラグビー競技規則<br/>マスタークイズ
+                            </h1>
+                            <p class="text-gray-600 mb-8 font-medium">
+                                実戦で必須となるルールを網羅。<br/>出題数を選んで挑戦してみましょう！
+                            </p>
+                            <div class="space-y-4 flex flex-col items-center">
+                                <button onclick="startQuiz(10)" class="w-full max-w-xs flex items-center justify-center gap-2 py-4 bg-white border-2 border-green-500 text-green-700 rounded-xl font-bold text-lg hover:bg-green-50 transition-colors shadow-sm">
+                                    <i data-lucide="play" class="w-5 h-5 fill-current"></i> サクッと 10問
+                                </button>
+                                <button onclick="startQuiz(20)" class="w-full max-w-xs flex items-center justify-center gap-2 py-4 bg-green-100 border-2 border-green-500 text-green-800 rounded-xl font-bold text-lg hover:bg-green-200 transition-colors shadow-sm">
+                                    <i data-lucide="play" class="w-5 h-5 fill-current"></i> しっかり 20問
+                                </button>
+                                <button onclick="startQuiz('all')" class="w-full max-w-xs flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-colors shadow-md shadow-green-200">
+                                    <i data-lucide="trophy" class="w-5 h-5"></i> 全問（30問）に挑戦
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (state.screen === 'quiz' || state.screen === 'result') {
+                
+                let contentHtml = '';
+                
+                if (state.screen === 'result') {
+                    const restartArg = state.questions.length === allQuestions.length ? "'all'" : state.questions.length;
+                    contentHtml = `
+                        <div class="text-center space-y-6 py-8">
+                            <i data-lucide="trophy" class="w-24 h-24 mx-auto text-yellow-500 mb-4 animate-bounce"></i>
+                            <h2 class="text-3xl font-black text-gray-800">最終スコア</h2>
+                            <p class="text-2xl font-bold text-slate-600">
+                                ${state.questions.length} 問中 <span class="text-5xl font-black text-green-600 mx-2">${state.score}</span> 問正解！
+                            </p>
+                            <div class="p-5 bg-green-50 rounded-xl border border-green-200 mt-6 inline-block w-full">
+                                <p class="text-lg text-green-800 font-bold leading-relaxed">${getScoreMessage()}</p>
+                            </div>
+                            <div class="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                                <button onclick="startQuiz(${restartArg})" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-green-600 text-white rounded-full font-bold text-lg hover:bg-green-700 transition-colors shadow-md">
+                                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                    同じ問題数でもう一度
+                                </button>
+                                <button onclick="backToHome()" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-200 text-slate-800 rounded-full font-bold text-lg hover:bg-slate-300 transition-colors">
+                                    トップメニューへ
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const question = state.questions[state.currentQuestion];
+                    
+                    let optionsHtml = question.answerOptions.map((opt, index) => {
+                        let buttonStyle = "bg-white border-2 border-gray-200 text-gray-700 hover:border-slate-400 hover:bg-slate-50";
+                        let iconHtml = '';
+
+                        if (state.isAnswered) {
+                            if (opt.isCorrect) {
+                                buttonStyle = "bg-green-50 border-2 border-green-500 text-green-800 font-bold";
+                                iconHtml = '<i data-lucide="check-circle-2" class="text-green-600 w-6 h-6 flex-shrink-0"></i>';
+                            } else if (index === state.selectedAnswerIndex) {
+                                buttonStyle = "bg-red-50 border-2 border-red-400 text-red-700";
+                                iconHtml = '<i data-lucide="x-circle" class="text-red-500 w-6 h-6 flex-shrink-0"></i>';
+                            } else {
+                                buttonStyle = "bg-gray-50 border-2 border-gray-100 text-gray-400 opacity-60";
+                            }
+                        }
+
+                        return `
+                            <button
+                                ${state.isAnswered ? 'disabled' : ''}
+                                onclick="handleAnswerOptionClick(${opt.isCorrect}, ${index})"
+                                class="relative p-4 rounded-xl text-left font-medium transition-all duration-200 flex items-center justify-between ${buttonStyle}"
+                            >
+                                <span class="pr-8">${opt.answerText}</span>
+                                ${iconHtml}
+                            </button>
+                        `;
+                    }).join('');
+
+                    let feedbackHtml = '';
+                    if (state.isAnswered) {
+                        let isCorrect = false;
+                        if (!state.isPassed && state.selectedAnswerIndex !== null) {
+                            isCorrect = question.answerOptions[state.selectedAnswerIndex].isCorrect;
+                        }
+
+                        let feedbackClass = state.isPassed ? 'bg-slate-100 border-slate-400' : (isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500');
+                        
+                        let badgeHtml = '';
+                        if (state.isPassed) {
+                            badgeHtml = '<span class="text-slate-600 font-black text-xl bg-slate-200 px-3 py-1 rounded whitespace-nowrap">⏭️ パス</span>';
+                        } else if (isCorrect) {
+                            badgeHtml = '<span class="text-green-600 font-black text-xl bg-green-100 px-3 py-1 rounded whitespace-nowrap">⭕ 正解</span>';
+                        } else {
+                            badgeHtml = '<span class="text-red-600 font-black text-xl bg-red-100 px-3 py-1 rounded whitespace-nowrap">❌ 不正解</span>';
+                        }
+
+                        const nextBtnText = (state.currentQuestion + 1 === state.questions.length) ? '結果を見る' : '次の問題へ';
+
+                        feedbackHtml = `
+                            <div class="mt-8 p-5 border-l-4 rounded-r-xl animate-fade-in-up ${feedbackClass}">
+                                <div class="flex items-start gap-3 flex-col sm:flex-row">
+                                    <div class="flex-shrink-0 mb-2 sm:mb-0">
+                                        ${badgeHtml}
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-gray-800 font-medium leading-relaxed sm:mt-1">
+                                            ${question.explanation}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-end">
+                                    <button
+                                        onclick="handleNextQuestion()"
+                                        class="inline-flex items-center gap-2 px-8 py-3 bg-slate-800 text-white rounded-full font-bold hover:bg-slate-900 transition-colors shadow-md"
+                                    >
+                                        ${nextBtnText}
+                                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    contentHtml = `
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center text-sm font-bold text-slate-500 mb-2 border-b pb-4">
+                                <span class="bg-slate-100 px-3 py-1 rounded-md">Q ${state.currentQuestion + 1} / ${state.questions.length}</span>
+                                <span>正解数: <span class="text-green-600 text-lg">${state.score}</span></span>
+                            </div>
+                            
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed min-h-[5rem]">
+                                ${question.questionText}
+                            </h2>
+
+                            <div class="grid grid-cols-1 gap-3 mt-6">
+                                ${optionsHtml}
+                            </div>
+
+                            ${!state.isAnswered ? `
+                                <div class="mt-4 text-center">
+                                    <button
+                                        onclick="handlePass()"
+                                        class="inline-flex items-center gap-2 px-6 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full font-bold transition-colors"
+                                    >
+                                        <i data-lucide="skip-forward" class="w-5 h-5"></i>
+                                        わからないのでパスする
+                                    </button>
+                                </div>
+                            ` : ''}
+
+                            ${feedbackHtml}
+                        </div>
+                    `;
+                }
+
+                html = `
+                    <div class="min-h-screen flex items-center justify-center p-4 w-full">
+                        <div class="bg-white rounded-2xl shadow-lg max-w-3xl w-full overflow-hidden border border-gray-200">
+                            <!-- ヘッダー -->
+                            <div class="bg-slate-800 text-white p-5">
+                                <div class="flex justify-between items-center">
+                                    <h1 class="text-lg md:text-xl font-bold flex items-center gap-2">
+                                        🏉 ラグビー競技規則テスト
+                                    </h1>
+                                    <button onclick="backToHome()" class="text-sm text-slate-300 hover:text-white underline">
+                                        トップへ戻る
+                                    </button>
+                                </div>
+                                ${state.screen === 'quiz' ? `
+                                    <div class="mt-4 w-full bg-slate-700 rounded-full h-2">
+                                        <div class="bg-green-400 h-2 rounded-full transition-all duration-300" style="width: ${(state.currentQuestion / state.questions.length) * 100}%"></div>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- コンテンツ -->
+                            <div class="p-6 md:p-8">
+                                ${contentHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            app.innerHTML = html;
+            // HTMLを流し込んだ後にLucideアイコンを描画
+            lucide.createIcons();
+        }
+
+        // 初期描画
+        render();
+    </script>
+</body>
+</html>
