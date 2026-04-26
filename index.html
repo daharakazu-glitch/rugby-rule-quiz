@@ -127,14 +127,14 @@
                 explanation: 'キックした選手より前にいる味方は「オフサイド」の位置にいます。キッカー自身、またはキッカーより後ろにいた選手に追い越されるまでプレーに関与できません。'
             },
             {
-                questionText: 'ハイタックル（危険なタックル）の基準となるラインはどこより上？',
+                questionText: '高校ラグビーにおいて、ハイタックル（危険なタックル）の基準となるラインはどこより上？',
                 answerOptions: [
                     { answerText: '腰のライン', isCorrect: false },
-                    { answerText: '胸のライン', isCorrect: false },
-                    { answerText: '肩のライン', isCorrect: true },
+                    { answerText: '胸骨（みぞおち付近）のライン', isCorrect: true },
+                    { answerText: '肩のライン', isCorrect: false },
                     { answerText: '頭のライン', isCorrect: false },
                 ],
-                explanation: '肩のラインより上へのタックルは「ハイタックル」となり、ペナルティ（状況によってはカード）の対象となります。首や頭を守るための厳格なルールです。'
+                explanation: '高校ラグビーではタックル可能な高さの上限が「肩のライン」から「胸骨（ステルナム）のライン」に引き下げられました。胸骨より上へのタックルはハイタックル（危険なプレー）としてペナルティやカードの対象になります。安全確保のため、低くタックルすることがより強く求められます。'
             },
             {
                 questionText: '攻撃側の選手が相手のインゴールに蹴り込んだボールを、防御側の選手が押さえてグラウンディング（インゴール・タッチダウン）した。再開方法は？',
@@ -211,30 +211,30 @@
                 answerOptions: [
                     { answerText: 'プレー続行', isCorrect: false },
                     { answerText: 'タッチ（ボールデッド）', isCorrect: true },
-                    { answerText: 'ノックオン', isCorrect: false },
+                    { answerText: 'ノックフォワード', isCorrect: false },
                     { answerText: 'ペナルティ', isCorrect: false },
                 ],
                 explanation: 'ボールキャリアがタッチライン（線そのもの）を踏んだ時点で、ボールは外に出た（タッチ）とみなされます。ラインを踏むことはアウトです。'
             },
             {
-                questionText: '故意にボールを前に叩き落とす行為（インテンショナル・ノックオン）の罰則は通常どうなる？',
+                questionText: '故意にボールを前に叩き落とす行為（インテンショナル・ノックフォワード）の罰則は通常どうなる？',
                 answerOptions: [
                     { answerText: '相手ボールのスクラム', isCorrect: false },
                     { answerText: 'ペナルティキック（状況によりイエローカード等の対象）', isCorrect: true },
                     { answerText: 'フリーキック', isCorrect: false },
                     { answerText: 'プレー続行', isCorrect: false },
                 ],
-                explanation: '単なる落球（ノックオン）はスクラムですが、「故意に」相手のパスをはたき落とす行為は重い反則（ペナルティ）となり、決定的なチャンスを防いだ場合はシンビンやペナルティトライの対象にもなります。'
+                explanation: '単なる落球（ノックフォワード／旧称ノックオン）はスクラムですが、「故意に」相手のパスをはたき落とす行為は重い反則（ペナルティ）となり、決定的なチャンスを防いだ場合はシンビンやペナルティトライの対象にもなります。'
             },
             {
-                questionText: '相手のキック直後に、ボールをブロックしようと手を伸ばしてボールに当てて前に落とした（チャージダウン）。これはノックオンになる？',
+                questionText: '相手のキック直後に、ボールをブロックしようと手を伸ばしてボールに当てて前に落とした（チャージダウン）。これはノックフォワードになる？',
                 answerOptions: [
-                    { answerText: 'ノックオンになる', isCorrect: false },
-                    { answerText: 'ノックオンにならない', isCorrect: true },
+                    { answerText: 'ノックフォワードになる', isCorrect: false },
+                    { answerText: 'ノックフォワードにならない', isCorrect: true },
                     { answerText: 'ペナルティになる', isCorrect: false },
                     { answerText: 'フリーキックになる', isCorrect: false },
                 ],
-                explanation: '相手のキックに対する「チャージダウン」は、ボールが前に落ちてもノックオンにはなりません。そのままプレー続行となります。'
+                explanation: '相手のキックに対する「チャージダウン」は、ボールが前に落ちてもノックフォワードにはなりません。そのままプレー続行となります。'
             },
             {
                 questionText: '空中にジャンプしてボールを捕ろうとしているプレーヤーに対してタックルをするとどうなる？',
@@ -274,7 +274,7 @@
                     { answerText: '相手のフリーキック', isCorrect: false },
                     { answerText: 'マイボールのラインアウト', isCorrect: false },
                 ],
-                explanation: 'スローフォワード（および通常のノックオン）は軽い反則とみなされ、反則が起きた地点での相手ボールスクラムで再開されます。'
+                explanation: 'スローフォワード（および通常のノックフォワード）は軽い反則とみなされ、反則が起きた地点での相手ボールスクラムで再開されます。'
             },
             {
                 questionText: 'プレー中にレフリーにボールが当たってしまった。どちらのチームにも有利にならなかった場合、判定はどうなる？',
